@@ -14,11 +14,13 @@
  * ======================================================================== */
 
 import React from 'react';
+import { SvgIconProps } from '@mui/material';
 import { StoryFn, Meta } from '@storybook/react';
 import { userEvent, within } from '@storybook/testing-library';
 import CaretDownIcon from '@hcl-software/enchanted-icons/dist/carbon/es/caret--down';
 import SearchIcon from '@hcl-software/enchanted-icons/dist/carbon/es/search';
 import InformationIcon from '@hcl-software/enchanted-icons/dist/carbon/es/information';
+import CopyIcon from '@hcl-software/enchanted-icons/dist/carbon/es/copy';
 
 import Autocomplete from './Autocomplete';
 import { top100Films } from './data';
@@ -26,6 +28,7 @@ import MenuItem from '../Menu/MenuItem';
 import ListItemText from '../List/ListItemText';
 import { TooltipPlacement } from '../Tooltip';
 import CircularProgress from '../ProgressIndicator/CircularProgress';
+import IconButton, { IconButtonSizes, IconButtonVariants } from '../IconButton';
 
 export default {
   title: 'Inputs/Autocomplete',
@@ -184,7 +187,7 @@ export default {
     },
     endAdornmentAction: {
       control: false,
-      description: 'Action of the end endAdornment icon.',
+      description: 'Adds a custom clickable action (icon or button) at the end of the Autocomplete input.',
     },
     renderNonEditInput: {
       control: false,
@@ -255,7 +258,7 @@ interface Movie {
 const Template: StoryFn<typeof Autocomplete> = (args) => {
   const [value, setValue] = React.useState(args.value ? args.value : null);
 
-  let customIcon: React.ComponentType<React.SVGProps<SVGSVGElement>> | undefined;
+  let customIcon: React.ComponentType<SvgIconProps> | undefined;
   switch (args.customIcon as unknown as string) {
     case 'CaretDownIcon':
       customIcon = CaretDownIcon;
@@ -420,5 +423,24 @@ export const ExampleAutocompleteStartAndEndAdornment = {
     ...ExampleAutocomplete.args,
     startAdornment: 'SearchIcon',
     endAdornment: 'Loading',
+  },
+};
+
+export const ExampleAutocompleteEndAdornmentAction = {
+  render: Template,
+  args: {
+    ...ExampleAutocomplete.args,
+    startAdornment: 'SearchIcon',
+    endAdornment: 'InformationIcon',
+    endAdornmentAction: (
+      <IconButton
+        aria-label="Copy value"
+        size={IconButtonSizes.SMALL}
+        variant={IconButtonVariants.WITHOUT_PADDING}
+        onClick={(event) => { event.preventDefault(); }}
+      >
+        <CopyIcon />
+      </IconButton>
+    ),
   },
 };

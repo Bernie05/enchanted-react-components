@@ -173,6 +173,10 @@ const Autocomplete = <T, Multiple extends boolean | undefined = undefined,
       iconCount += getIconsCount(props.endAdornment);
     }
 
+    if (endAdornmentAction) {
+      iconCount += getIconsCount(endAdornmentAction);
+    }
+
     // Check for freeSolo first because if it's true, then the caret down icon will not be shown.
     iconCount += props.freeSolo ? 0 : 1;
 
@@ -192,7 +196,7 @@ const Autocomplete = <T, Multiple extends boolean | undefined = undefined,
     const iconWidth = ((iconCount) * 21 - (parentWidth <= 150 ? 5 : 0));
 
     return Math.max(iconWidth, 0);
-  }, [props.endAdornment, props.error, props.freeSolo, props.disabled, textfieldRef]);
+  }, [props.endAdornment, endAdornmentAction, props.error, props.freeSolo, props.disabled, props.disableClearable, props.value, getIconsCount]);
 
   const handleChange = (
     event: React.SyntheticEvent<Element, Event>,
@@ -281,8 +285,30 @@ const Autocomplete = <T, Multiple extends boolean | undefined = undefined,
                   : params.InputProps?.startAdornment,
                 endAdornment: (
                   <>
+                    {(() => {
+                      const defaultEndAdornment = params.InputProps?.endAdornment;
+
+                      if (endAdornmentAction && React.isValidElement(defaultEndAdornment)) {
+                        const defaultEndAdornmentElement = defaultEndAdornment as React.ReactElement<{ children?: React.ReactNode }>;
+
+                        return React.cloneElement(defaultEndAdornmentElement, {
+                          children: (
+                            <>
+                              {defaultEndAdornmentElement.props.children}
+                              <span className="MuiAutocomplete-customEndAction">{endAdornmentAction}</span>
+                            </>
+                          ),
+                        });
+                      }
+
+                      return (
+                        <>
+                          {defaultEndAdornment}
+                          {endAdornmentAction ? <span className="MuiAutocomplete-customEndAction">{endAdornmentAction}</span> : null}
+                        </>
+                      );
+                    })()}
                     {endAdornment}
-                    {params.InputProps?.endAdornment}
                   </>
                 ),
               },
@@ -475,6 +501,17 @@ export const getMuiAutocompleteThemeOverrides = (): Components<Omit<Theme, 'comp
                           height: '16px',
                           width: '16px',
                         },
+                      },
+                    },
+                    '.MuiAutocomplete-customEndAction': {
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginLeft: '4px',
+                      '.MuiButtonBase-root': {
+                        top: '2px',
+                        margin: '0px',
+                        padding: '0px',
                       },
                     },
                   },
